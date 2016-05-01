@@ -1,3 +1,132 @@
-<h2>Hello World</h2>
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>JS Test</title>
+  <script src="https://code.jquery.com/jquery-2.1.3.min.js" type="application/javascript"></script>
+</head>
+<body>
+  <div class="main-pane">
+    <h2>Word Translator</h2>
+    <p>
+      Welcome! This is a word translation tool. You provide the source words and the words that they
+      should be translated to, and the website does the rest! The translator already knows some words,
+      but it's important to remember that any words you teach it will be forgotten when the page is 
+      refreshed.
+    </p>
+    <div>
+      Source word: <input type="text" id="source-word" placeholder="party"/>
+      Translation word: <input type="text" id="translation-word" placeholder="fiesta">
+      <input type="button" id="learn-translate" value="Learn Translation!"/>
+    </div>
+    <h4>Translator</h4>
+    <p>
+      You can enter a sentence into the textbox below in order to use the known
+      translations to translate a sentence.
+    </p>
+    <textarea name="translate-box" id="translate-box" cols="50" rows="10" placeholder="Enter the sentence to translate here!"></textarea>
+    <p><span id="translation-result">And your translation will appear here!</span></p>
+  </div>
+  <div class="dictionary-pane">
+    <h2>Known Translations:</h2>
+    <p>
+      These are all the words I know!
+      They're in the form of "known word" -> "translation" in the list below.
+    </p>
+    <p>Hint: click on the "remove" link next a known to remove a known translation</p>
+    <ul id="known-translations"></ul>
+  </div>
+​
+</body>
+<style type="text/css">
+  .main-pane {
+    float: left;
+    width: 75%;
+  }
+  .dictionary-pane {
+    float: right;
+    width: 25%;
+  }
+</style>
+<script type="application/javascript">
+  "use strict";
+  (function(){
+    // Create dictionary object seeded with translations for 1-10
+    var dict = { 
+                 one: "uno",
+                 two: "dos",
+                 three: "tres",
+                 four: "cuatro",
+                 five: "cinco",
+                 six: "seis",
+                 seven: "siete",
+                 eight: "ocho",
+                 nine: "nueve",
+                 ten: "diez" 
+               };
 
-<p>The time is now: <%= Time.now %></p>
+    // Print known translations list
+    for (var key in dict) { 
+      $("#known-translations").append('<li>' + key + ' -> ' + dict[key] + ' <a href="#" class="remove">remove</a></li>');
+    }
+
+    // Add new translation
+    $("#learn-translate").click(function() {
+      var source = $("#source-word").val();
+      var translation = $("#translation-word").val();
+
+      // If translation already exists, ask user to remove original translation
+      if (dict[source]) {
+        alert("That word already has a translation. Please remove the original translation first.");
+        return;
+      }
+
+      // Require that neither the source or translation text field is empty
+      if (source === "" || translation === "") {
+        alert("You must enter words for both the source and translation.");
+        return;
+      }
+
+      // Add translation to the dictionary
+      dict[source] = translation;
+
+      // Append new translation to the known translations list
+      $("#known-translations").append('<li>' + source + ' -> ' + translation + ' <a href="#" class="remove">remove</a></li>');
+    });
+
+    // Translate text from textarea
+    $("#translate-box").keyup(function() {
+      // Get array of words entered into textarea
+      var original_words = $("#translate-box").val().split(" ");
+
+      // If translation exists, replace original word with translated word
+      for (var i = 0; i < original_words.length; i++) {
+        if (dict[original_words[i]]) {
+          original_words[i] = dict[original_words[i]];
+        }
+      }
+
+      // Join translated words into string
+      var translated_text = original_words.join(" ");
+
+      // Update translation result text
+      $("#translation-result").text(translated_text);
+    });
+
+    // Remove a known translation
+    $("#known-translations").on("click", ".remove", function() {
+      // Get source word from list
+      var remove_key = $(this).parent("li").text().split(" ")[0];
+
+      // Remove translation from dictionary
+      delete dict[remove_key];
+
+      // Remove translation from known translations list
+      $(this).parent("li").remove();
+
+      // Return false to prevent following link
+      return false;
+    });
+  })();
+</script>
+</html>
